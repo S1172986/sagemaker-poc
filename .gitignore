@@ -195,3 +195,4 @@ inputs/
 *.tfevents
 *.pkl
 *.joblib
+*.csv
