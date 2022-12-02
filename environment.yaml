@@ -1,0 +1,37 @@
+name: sagemaker-poc
+channels:
+  - conda-forge
+  - plotly
+  - defaults
+dependencies:
+  - python=3.10
+  - ipykernel
+  - pylint
+  - flake8
+  - black
+  - pydocstyle
+  - ipympl
+  - ipywidgets
+  - nodejs
+  - matplotlib
+  - seaborn
+  - plotly
+  - jupyter-dash
+  - scikit-learn
+  - scipy
+  - numpy
+  - pandas
+  - tensorboard
+  - cloudpathlib 
+  - pip
+  - pip:
+    - -e .
+    - -r ./code/requirements.txt
+    - sagemaker
+    - sagemaker-experiments
+    - dvc-s3
+    - pandas-profiling
+    - jupyterlab
+    - shap
+    - protobuf==3.9.2
+    - sqlalchemy-redshift

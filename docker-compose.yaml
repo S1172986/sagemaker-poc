@@ -1,0 +1,26 @@
+networks:
+  sagemaker-local:
+    name: sagemaker-local
+services:
+  algo:
+    command: train
+    # command: serve
+    container_name: sagemaker-train
+    env_file:
+      - .env
+    image: 492215442770.dkr.ecr.eu-central-1.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3
+    networks:
+      sagemaker-local:
+        aliases:
+        - algo
+    stdin_open: true
+    tty: true
+    volumes:
+    - ./sagemaker/input:/opt/ml/input
+    - ./sagemaker/output:/opt/ml/output
+    - ./sagemaker/output/data:/opt/ml/output/data
+    - ./sagemaker/model:/opt/ml/model
+    - ./data/train:/opt/ml/input/data/train:ro
+    - ./data/test:/opt/ml/input/data/test:ro
+    - ${HOME}/.aws:/root/.aws:ro
+version: '3.9'

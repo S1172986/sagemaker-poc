@@ -1,0 +1,53 @@
+stages:
+  # aggregate_weather:
+  #   cmd: cd code/preprocessing && python aggregate_weather_data.py
+  # aggregate_ssurgo:
+  #   cmd: cd code/preprocessing && python aggregate_ssurgo_data.py
+  # aggregate_nasa:
+  #   cmd: cd code/preprocessing && python aggregate_nasa_data.py
+  # remote_senssing:
+  #   cmd: cd code/preprocessing && python get_remote_sensing.py
+  train_local:
+    cmd: cd code && python train.py --train_dir ../dvc/output/train
+    deps:
+      - ./code
+      - ./data/
+    params:
+      - code/params.yaml:
+        - hyperparameters
+    outs:
+      - dvc/output/intermediate/artifacts/model.joblib
+      - dvc/model/model
+      - dvc/output/data
+    metrics:
+      - dvc/output/metrics.json:
+          cache: false
+    plots:
+      # - output/intermediate/plots/feature_importance.png
+      - dvc/output/intermediate/plots/mae.json:
+          cache: false
+          x: iter
+          y: MAE
+  train_sagemaker:
+    cmd: syngenta --instance_type local
+    deps:
+      - ./code
+      - ./data/
+    params:
+      - train.instance_type
+      - train.instance_count
+      - code/params.yaml:
+        - hyperparameters
+    outs:
+      - sagemaker/output/intermediate/artifacts/model.joblib
+      - sagemaker/model/model
+      - sagemaker/output/data
+    metrics:
+      - sagemaker/output/metrics.json:
+          cache: false
+    plots:
+      # - output/intermediate/plots/feature_importance.png
+      - sagemaker/output/intermediate/plots/mae.json:
+          cache: false
+          x: iter
+          y: MAE

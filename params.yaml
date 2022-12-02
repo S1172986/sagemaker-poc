@@ -1,0 +1,76 @@
+default_config:
+  train_instance_type: &train_instance_type ml.m4.xlarge
+  inference_instance_type: &inference_instance_type ml.m4.xlarge
+  py_version: &py_version py3
+  framework_version: &framework_version 1.0-1
+  container_log_level: &container_log_level 20
+  wait: &wait true
+train:
+  base_job_name: gda-yield-training-job
+  job_name: gda-yield-training-job
+  instance_type: *train_instance_type
+  volume_size: 10
+  max_run: 86400
+  max_wait: 86400
+  instance_count: 1
+  source_dir: code/
+  entry_point: train.py
+  dependencies: null
+  py_version: *py_version
+  framework_version: *framework_version
+  model_uri: null
+  model_channel_name: null
+  container_log_level: *container_log_level
+  tags:
+    - Key: 'Application'
+      Value: 'GDA'
+    - Key: 'Cost Center'
+      Value: '62644'
+  metric_definitions:
+    - Name: 'test:mae'
+      Regex: 'mae: ([\d*\.?\d*]+);'
+    - Name: 'test:mape'
+      Regex: 'mape: ([\d*\.?\d*]+);'
+    - Name: 'test:rmse'
+      Regex: 'rmse: ([\d*\.?\d*]+);'
+  enable_sagemaker_metrics: true
+  use_spot_instances: false
+  tensorboard:
+    s3_output_path: null
+    container_local_output_path: null
+  checkpoints:
+    checkpoint_s3_uri: null
+    checkpoint_local_path: null
+    checkpoint_model: false
+  security_group_ids:
+    - sg-08ec780df00d293b0
+  subnets:
+    - subnet-05bd78860c2f05164
+    - subnet-0d8e3fd5532d83e69
+  inputs:
+    train: s3://cad-alok-singh/us_in_season_corn_yield/8_stages/V0/train_test_2020/train
+    test: s3://cad-alok-singh/us_in_season_corn_yield/8_stages/V0/train_test_2020/test
+  output_path: s3://sagemaker-eu-central-1-226275233641/cad-alok-singh/us_in_season_corn_yield/8_stages/V0/train_test_2020/model/Train
+  wait: *wait
+model:
+  source_dir: code/
+  entry_point: "inference.py"
+  framework_version: *framework_version
+  name: gda-yeild-infrence-provisioned
+inference:
+  endpoint_name: gda-yeild-infrence-provisioned
+  instance_type: *inference_instance_type
+  initial_instance_count: 1
+  security_group_ids:
+    - sg-08ec780df00d293b0
+  subnets:
+    - subnet-05bd78860c2f05164
+    - subnet-0d8e3fd5532d83e69
+  serverles_inference_config:
+    memory_size_in_mb: 4096
+    max_concurrency: 2
+  tags:
+    - Key: 'Application'
+      Value: 'GDA'
+    - Key: 'Cost Center'
+      Value: '62644'
